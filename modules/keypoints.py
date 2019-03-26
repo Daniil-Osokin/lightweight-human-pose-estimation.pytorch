@@ -8,13 +8,19 @@ BODY_PARTS_PAF_IDS = ([12, 13], [20, 21], [14, 15], [16, 17], [22, 23], [24, 25]
                       [6, 7], [8, 9], [10, 11], [28, 29], [30, 31], [34, 35], [32, 33], [36, 37], [18, 19], [26, 27])
 
 
+def linspace2d(start, stop, n=10):
+    points = 1 / (n - 1) * (stop - start)
+    return points[:, None] * np.arange(n) + start[:, None]
+
+
 def extract_keypoints(heatmap, all_keypoints, total_keypoint_num):
     heatmap[heatmap < 0.1] = 0
-    heatmap_center = np.pad(heatmap, [(1, 1), (1, 1)], mode='constant')
-    heatmap_left = np.pad(heatmap, [(1, 1), (0, 2)], mode='constant')
-    heatmap_right = np.pad(heatmap, [(1, 1), (2, 0)], mode='constant')
-    heatmap_up = np.pad(heatmap, [(0, 2), (1, 1)], mode='constant')
-    heatmap_down = np.pad(heatmap, [(2, 0), (1, 1)], mode='constant')
+    heatmap_with_borders = np.pad(heatmap, [(2, 2), (2, 2)], mode='constant')
+    heatmap_center = heatmap_with_borders[1:heatmap_with_borders.shape[0]-1, 1:heatmap_with_borders.shape[1]-1]
+    heatmap_left = heatmap_with_borders[1:heatmap_with_borders.shape[0]-1, 2:heatmap_with_borders.shape[1]]
+    heatmap_right = heatmap_with_borders[1:heatmap_with_borders.shape[0]-1, 0:heatmap_with_borders.shape[1]-2]
+    heatmap_up = heatmap_with_borders[2:heatmap_with_borders.shape[0], 1:heatmap_with_borders.shape[1]-1]
+    heatmap_down = heatmap_with_borders[0:heatmap_with_borders.shape[0]-2, 1:heatmap_with_borders.shape[1]-1]
 
     heatmap_peaks = (heatmap_center > heatmap_left) &\
                     (heatmap_center > heatmap_right) &\
@@ -42,7 +48,7 @@ def extract_keypoints(heatmap, all_keypoints, total_keypoint_num):
     return keypoint_num
 
 
-def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_score=0.05):
+def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_score=0.05, demo=False):
     pose_entries = []
     all_keypoints = np.array([item for sublist in all_keypoints_by_type for item in sublist])
     for part_id in range(len(BODY_PARTS_PAF_IDS)):
@@ -87,13 +93,15 @@ def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_sco
 
         connections = []
         for i in range(num_kpts_a):
+            kpt_a = np.array(kpts_a[i][0:2])
             for j in range(num_kpts_b):
+                kpt_b = np.array(kpts_b[j][0:2])
                 mid_point = [(), ()]
-                mid_point[0] = (int(round(kpts_a[i][0] * 0.5 + kpts_b[j][0] * 0.5)),
-                                int(round(kpts_a[i][1] * 0.5 + kpts_b[j][1] * 0.5)))
+                mid_point[0] = (int(round((kpt_a[0] + kpt_b[0]) * 0.5)),
+                                int(round((kpt_a[1] + kpt_b[1]) * 0.5)))
                 mid_point[1] = mid_point[0]
 
-                vec = [kpts_b[j][0] - kpts_a[i][0], kpts_b[j][1] - kpts_a[i][1]]
+                vec = [kpt_b[0] - kpt_a[0], kpt_b[1] - kpt_a[1]]
                 vec_norm = math.sqrt(vec[0] ** 2 + vec[1] ** 2)
                 if vec_norm == 0:
                     continue
@@ -108,11 +116,14 @@ def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_sco
                 if cur_point_score > -100:
                     passed_point_score = 0
                     passed_point_num = 0
-                    x = np.linspace(kpts_a[i][0], kpts_b[j][0], point_num)
-                    y = np.linspace(kpts_a[i][1], kpts_b[j][1], point_num)
+                    x, y = linspace2d(kpt_a, kpt_b)
                     for point_idx in range(point_num):
-                        px = int(round(x[point_idx]))
-                        py = int(round(y[point_idx]))
+                        if not demo:
+                            px = int(round(x[point_idx]))
+                            py = int(round(y[point_idx]))
+                        else:
+                            px = int(x[point_idx])
+                            py = int(y[point_idx])
                         paf = part_pafs[py, px, 0:2]
                         cur_point_score = vec[0] * paf[0] + vec[1] * paf[1]
                         if cur_point_score > min_paf_score:
