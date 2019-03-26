@@ -46,9 +46,9 @@ class InitialStage(nn.Module):
 
 
 class RefinementStageBlock(nn.Module):
-    def __init__(self, in_channles, out_channels):
+    def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.initial = conv(in_channles, out_channels, kernel_size=1, padding=0, bn=False)
+        self.initial = conv(in_channels, out_channels, kernel_size=1, padding=0, bn=False)
         self.trunk = nn.Sequential(
             conv(out_channels, out_channels),
             conv(out_channels, out_channels, dilation=2, padding=2)
