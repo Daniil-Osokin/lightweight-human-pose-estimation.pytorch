@@ -17,6 +17,10 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 * [Python demo](#python-demo)
 * [Citation](#citation)
 
+### Other Implementations
+
+* TensorFlow by [murdockhou](https://github.com/murdockhou/lightweight_openpose).
+
 ## Requirements
 
 * Ubuntu 16.04
