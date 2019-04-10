@@ -43,9 +43,9 @@ Training consists of 3 steps (given AP values for full validation dataset):
 
 3. To train from MobileNet weights, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/mobilenet_sgd_68.848.pth.tar --from-mobilenet`
 
-4. Next, to train from checkpoint from previous step, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_420000.pth.tar --weights-only`
+4. Next, to train from checkpoint from previous step, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_420000.pth --weights-only`
 
-5. Finally, to train from checkpoint from previous step and 3 refinement stages in network, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_280000.pth.tar --weights-only --num-refinement-stages 3`. We took checkpoint after 370000 iterations as the final one.
+5. Finally, to train from checkpoint from previous step and 3 refinement stages in network, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_280000.pth --weights-only --num-refinement-stages 3`. We took checkpoint after 370000 iterations as the final one.
 
 We did not perform the best checkpoint selection at any step, so similar result may be achieved after less number of iterations.
 
@@ -84,7 +84,7 @@ To get rid of it, increase the limit to bigger number, e.g. 65536, run in the te
 ## Pre-trained model <a name="pre-trained-model"/>
 
 The model expects normalized image (mean=[128, 128, 128], scale=[1/256, 1/256, 1/256]) in planar BGR format.
-Pre-trained on COCO model is available at: https://download.01.org/openvinotoolkit/open_model_zoo/training_toolbox_pytorch/models/hpe/checkpoint_iter_370000.pth.tar, it has 40% of AP on COCO validation set (38.6% of AP on the val *subset*).
+Pre-trained on COCO model is available at: https://download.01.org/opencv/openvino_training_extensions/models/human_pose_estimation/checkpoint_iter_370000.pth, it has 40% of AP on COCO validation set (38.6% of AP on the val *subset*).
 
 #### Conversion to OpenVINO format
 
@@ -98,7 +98,7 @@ To run the demo download Intel&reg; OpenVINO&trade; Toolkit [https://software.in
 ## Python Demo <a name="python-demo"/>
 
 We provide python demo just for the quick results preview. Please, consider c++ demo for the best performance. To run the python demo from a webcam:
-* `python demo.py --checkpoint-path <path_to>/checkpoint_iter_370000.pth.tar --video 0`
+* `python demo.py --checkpoint-path <path_to>/checkpoint_iter_370000.pth --video 0`
 
 ## Citation:
 
