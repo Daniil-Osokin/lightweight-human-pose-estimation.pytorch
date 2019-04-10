@@ -118,7 +118,7 @@ def train(prepared_train_labels, train_images_folder, num_refinement_stages, bas
                 for loss_idx in range(len(total_losses)):
                     total_losses[loss_idx] = 0
             if num_iter % checkpoint_after == 0:
-                snapshot_name = '{}/checkpoint_iter_{}.pth.tar'.format(checkpoints_folder, num_iter)
+                snapshot_name = '{}/checkpoint_iter_{}.pth'.format(checkpoints_folder, num_iter)
                 torch.save({'state_dict': net.module.state_dict(),
                             'optimizer': optimizer.state_dict(),
                             'scheduler': scheduler.state_dict(),
