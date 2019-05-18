@@ -5,8 +5,9 @@ import numpy as np
 import torch
 
 from models.with_mobilenet import PoseEstimationWithMobileNet
-from modules.keypoints import extract_keypoints, group_keypoints, BODY_PARTS_KPT_IDS, BODY_PARTS_PAF_IDS
+from modules.keypoints import extract_keypoints, group_keypoints
 from modules.load_state import load_state
+from modules.pose import Pose, propagate_ids
 from val import normalize, pad_width
 
 
@@ -77,45 +78,50 @@ def infer_fast(net, img, net_input_height_size, stride, upsample_ratio, cpu,
     return heatmaps, pafs, scale, pad
 
 
-def run_demo(net, image_provider, height_size, cpu):
+def run_demo(net, image_provider, height_size, cpu, track_ids):
     net = net.eval()
     if not cpu:
         net = net.cuda()
 
     stride = 8
     upsample_ratio = 4
-    color = [0, 224, 255]
+    num_keypoints = Pose.num_kpts
+    previous_poses = []
     for img in image_provider:
         orig_img = img.copy()
         heatmaps, pafs, scale, pad = infer_fast(net, img, height_size, stride, upsample_ratio, cpu)
 
         total_keypoints_num = 0
         all_keypoints_by_type = []
-        for kpt_idx in range(18):  # 19th for bg
+        for kpt_idx in range(num_keypoints):  # 19th for bg
             total_keypoints_num += extract_keypoints(heatmaps[:, :, kpt_idx], all_keypoints_by_type, total_keypoints_num)
 
         pose_entries, all_keypoints = group_keypoints(all_keypoints_by_type, pafs, demo=True)
         for kpt_id in range(all_keypoints.shape[0]):
             all_keypoints[kpt_id, 0] = (all_keypoints[kpt_id, 0] * stride / upsample_ratio - pad[1]) / scale
             all_keypoints[kpt_id, 1] = (all_keypoints[kpt_id, 1] * stride / upsample_ratio - pad[0]) / scale
+        current_poses = []
         for n in range(len(pose_entries)):
             if len(pose_entries[n]) == 0:
                 continue
-            for part_id in range(len(BODY_PARTS_PAF_IDS) - 2):
-                kpt_a_id = BODY_PARTS_KPT_IDS[part_id][0]
-                global_kpt_a_id = pose_entries[n][kpt_a_id]
-                if global_kpt_a_id != -1:
-                    x_a, y_a = all_keypoints[int(global_kpt_a_id), 0:2]
-                    cv2.circle(img, (int(x_a), int(y_a)), 3, color, -1)
-                kpt_b_id = BODY_PARTS_KPT_IDS[part_id][1]
-                global_kpt_b_id = pose_entries[n][kpt_b_id]
-                if global_kpt_b_id != -1:
-                    x_b, y_b = all_keypoints[int(global_kpt_b_id), 0:2]
-                    cv2.circle(img, (int(x_b), int(y_b)), 3, color, -1)
-                if global_kpt_a_id != -1 and global_kpt_b_id != -1:
-                    cv2.line(img, (int(x_a), int(y_a)), (int(x_b), int(y_b)), color, 2)
+            pose_keypoints = np.ones((num_keypoints, 2), dtype=np.int32) * -1
+            for kpt_id in range(num_keypoints):
+                if pose_entries[n][kpt_id] != -1.0:  # keypoint was found
+                    pose_keypoints[kpt_id, 0] = int(all_keypoints[int(pose_entries[n][kpt_id]), 0])
+                    pose_keypoints[kpt_id, 1] = int(all_keypoints[int(pose_entries[n][kpt_id]), 1])
+            pose = Pose(pose_keypoints, pose_entries[n][18])
+            current_poses.append(pose)
+            pose.draw(img)
 
         img = cv2.addWeighted(orig_img, 0.6, img, 0.4, 0)
+        if track_ids == True:
+            propagate_ids(previous_poses, current_poses)
+            previous_poses = current_poses
+            for pose in current_poses:
+                cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),
+                              (pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (0, 255, 0))
+                cv2.putText(img, 'id: {}'.format(pose.id), (pose.bbox[0], pose.bbox[1] - 16),
+                            cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255))
         cv2.imshow('Lightweight Human Pose Estimation Python Demo', img)
         key = cv2.waitKey(33)
         if key == 27:  # esc
@@ -132,6 +138,7 @@ if __name__ == '__main__':
     parser.add_argument('--video', type=str, default='', help='path to video file or camera id')
     parser.add_argument('--images', nargs='+', default='', help='path to input image(s)')
     parser.add_argument('--cpu', action='store_true', help='run network inference on cpu')
+    parser.add_argument('--track-ids', default=True, help='track poses ids')
     args = parser.parse_args()
 
     if args.video == '' and args.images == '':
@@ -145,4 +152,4 @@ if __name__ == '__main__':
     if args.video != '':
         frame_provider = VideoReader(args.video)
 
-    run_demo(net, frame_provider, args.height_size, args.cpu)
+    run_demo(net, frame_provider, args.height_size, args.cpu, args.track_ids)
