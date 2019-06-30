@@ -6,6 +6,8 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
   <img src="data/preview.jpg" />
 </p>
 
+:fire: Check out our [new work](https://github.com/Daniil-Osokin/gccpm-look-into-person-cvpr19.pytorch) on accurate (and still fast) single-person pose estimation, which ranked 10<sup>th</sup> on CVPR'19 [Look-Into-Person](http://47.100.21.47:9999/index.php) challenge.
+
 ## Table of Contents
 
 * [Requirements](#requirements)
