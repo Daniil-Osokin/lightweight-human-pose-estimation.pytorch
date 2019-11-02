@@ -8,6 +8,8 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 
 :fire: Check out our [new work](https://github.com/Daniil-Osokin/gccpm-look-into-person-cvpr19.pytorch) on accurate (and still fast) single-person pose estimation, which ranked 10<sup>th</sup> on CVPR'19 [Look-Into-Person](http://47.100.21.47:9999/index.php) challenge.
 
+:fire::fire: Check out our lightweight [3D pose estimation](https://github.com/Daniil-Osokin/lightweight-human-pose-estimation-3d-demo.pytorch), which is based on [Single-Shot Multi-Person 3D Pose Estimation From Monocular RGB](https://arxiv.org/pdf/1712.03453.pdf) paper and this work.
+
 ## Table of Contents
 
 * [Requirements](#requirements)
