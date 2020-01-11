@@ -74,13 +74,15 @@ def get_similarity(a, b, threshold=0.5):
     return num_similar_kpt
 
 
-def propagate_ids(previous_poses, current_poses, threshold=3):
+def track_poses(previous_poses, current_poses, threshold=3, smooth=False):
     """Propagate poses ids from previous frame results. Id is propagated,
     if there are at least `threshold` similar keypoints between pose from previous frame and current.
+    If correspondence between pose on previous and current frame was established, pose keypoints are smoothed.
 
     :param previous_poses: poses from previous frame with ids
     :param current_poses: poses from current frame to assign ids
     :param threshold: minimal number of similar keypoints between poses
+    :param smooth: smooth pose keypoints between frames
     :return: None
     """
     current_poses = sorted(current_poses, key=lambda pose: pose.confidence, reverse=True)  # match confident poses first
@@ -103,13 +105,14 @@ def propagate_ids(previous_poses, current_poses, threshold=3):
             best_matched_pose_id = None
         current_pose.update_id(best_matched_pose_id)
 
-        for kpt_id in range(Pose.num_kpts):
-            if current_pose.keypoints[kpt_id, 0] == -1:
-                continue
-            # reuse filter if previous pose has valid filter
-            if (best_matched_pose_id is not None
-                    and previous_poses[best_matched_id].keypoints[kpt_id, 0] != -1):
-                current_pose.filters[kpt_id] = previous_poses[best_matched_id].filters[kpt_id]
-            current_pose.keypoints[kpt_id, 0] = current_pose.filters[kpt_id][0](current_pose.keypoints[kpt_id, 0])
-            current_pose.keypoints[kpt_id, 1] = current_pose.filters[kpt_id][1](current_pose.keypoints[kpt_id, 1])
-        current_pose.bbox = Pose.get_bbox(current_pose.keypoints)
+        if smooth:
+            for kpt_id in range(Pose.num_kpts):
+                if current_pose.keypoints[kpt_id, 0] == -1:
+                    continue
+                # reuse filter if previous pose has valid filter
+                if (best_matched_pose_id is not None
+                        and previous_poses[best_matched_id].keypoints[kpt_id, 0] != -1):
+                    current_pose.filters[kpt_id] = previous_poses[best_matched_id].filters[kpt_id]
+                current_pose.keypoints[kpt_id, 0] = current_pose.filters[kpt_id][0](current_pose.keypoints[kpt_id, 0])
+                current_pose.keypoints[kpt_id, 1] = current_pose.filters[kpt_id][1](current_pose.keypoints[kpt_id, 1])
+            current_pose.bbox = Pose.get_bbox(current_pose.keypoints)
