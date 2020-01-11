@@ -87,6 +87,7 @@ def run_demo(net, image_provider, height_size, cpu, track_ids):
     upsample_ratio = 4
     num_keypoints = Pose.num_kpts
     previous_poses = []
+    delay = 33
     for img in image_provider:
         orig_img = img.copy()
         heatmaps, pafs, scale, pad = infer_fast(net, img, height_size, stride, upsample_ratio, cpu)
@@ -111,21 +112,28 @@ def run_demo(net, image_provider, height_size, cpu, track_ids):
                     pose_keypoints[kpt_id, 1] = int(all_keypoints[int(pose_entries[n][kpt_id]), 1])
             pose = Pose(pose_keypoints, pose_entries[n][18])
             current_poses.append(pose)
-            pose.draw(img)
 
-        img = cv2.addWeighted(orig_img, 0.6, img, 0.4, 0)
         if track_ids == True:
             propagate_ids(previous_poses, current_poses)
             previous_poses = current_poses
-            for pose in current_poses:
-                cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),
-                              (pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (0, 255, 0))
+        for pose in current_poses:
+            pose.draw(img)
+        img = cv2.addWeighted(orig_img, 0.6, img, 0.4, 0)
+        for pose in current_poses:
+            cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),
+                          (pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (0, 255, 0))
+            if track_ids == True:
                 cv2.putText(img, 'id: {}'.format(pose.id), (pose.bbox[0], pose.bbox[1] - 16),
                             cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255))
         cv2.imshow('Lightweight Human Pose Estimation Python Demo', img)
-        key = cv2.waitKey(33)
+        key = cv2.waitKey(delay)
         if key == 27:  # esc
             return
+        elif key == 112:  # 'p'
+            if delay == 33:
+                delay = 0
+            else:
+                delay = 33
 
 
 if __name__ == '__main__':
