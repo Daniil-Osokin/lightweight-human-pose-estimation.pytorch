@@ -39,10 +39,8 @@ class ConvertKeypoints(object):
         converted_keypoints = list(keypoints[i - 1] for i in reorder_map)
         converted_keypoints.insert(1, [(keypoints[5][0] + keypoints[6][0]) / 2,
                                        (keypoints[5][1] + keypoints[6][1]) / 2, 0])  # Add neck as a mean of shoulders
-        if keypoints[5][2] == 2 and keypoints[6][2] == 2:
+        if keypoints[5][2] == 2 or keypoints[6][2] == 2:
             converted_keypoints[1][2] = 2
-        elif keypoints[5][2] == 3 and keypoints[6][2] == 3:
-            converted_keypoints[1][2] = 3
         elif keypoints[5][2] == 1 and keypoints[6][2] == 1:
             converted_keypoints[1][2] = 1
         if (converted_keypoints[1][0] < 0
