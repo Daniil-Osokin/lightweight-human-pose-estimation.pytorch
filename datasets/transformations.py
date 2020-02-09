@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-class ConvertKeypoints(object):
+class ConvertKeypoints:
     def __call__(self, sample):
         label = sample['label']
         h, w, _ = sample['image'].shape
@@ -51,7 +51,7 @@ class ConvertKeypoints(object):
         return converted_keypoints
 
 
-class Scale(object):
+class Scale:
     def __init__(self, prob=1, min_scale=0.5, max_scale=1.1, target_dist=0.6):
         self._prob = prob
         self._min_scale = min_scale
@@ -85,7 +85,7 @@ class Scale(object):
         return sample
 
 
-class Rotate(object):
+class Rotate:
     def __init__(self, pad, max_rotate_degree=40):
         self._pad = pad
         self._max_rotate_degree = max_rotate_degree
@@ -129,7 +129,7 @@ class Rotate(object):
                 R[1, 0] * point[0] + R[1, 1] * point[1] + R[1, 2]]
 
 
-class CropPad(object):
+class CropPad:
     def __init__(self, pad, center_perterb_max=40, crop_x=368, crop_y=368):
         self._pad = pad
         self._center_perterb_max = center_perterb_max
@@ -221,7 +221,7 @@ class CropPad(object):
         return True
 
 
-class Flip(object):
+class Flip:
     def __init__(self, prob=0.5):
         self._prob = prob
 
