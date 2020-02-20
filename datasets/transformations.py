@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-class ConvertKeypoints(object):
+class ConvertKeypoints:
     def __call__(self, sample):
         label = sample['label']
         h, w, _ = sample['image'].shape
@@ -39,10 +39,8 @@ class ConvertKeypoints(object):
         converted_keypoints = list(keypoints[i - 1] for i in reorder_map)
         converted_keypoints.insert(1, [(keypoints[5][0] + keypoints[6][0]) / 2,
                                        (keypoints[5][1] + keypoints[6][1]) / 2, 0])  # Add neck as a mean of shoulders
-        if keypoints[5][2] == 2 and keypoints[6][2] == 2:
+        if keypoints[5][2] == 2 or keypoints[6][2] == 2:
             converted_keypoints[1][2] = 2
-        elif keypoints[5][2] == 3 and keypoints[6][2] == 3:
-            converted_keypoints[1][2] = 3
         elif keypoints[5][2] == 1 and keypoints[6][2] == 1:
             converted_keypoints[1][2] = 1
         if (converted_keypoints[1][0] < 0
@@ -53,7 +51,7 @@ class ConvertKeypoints(object):
         return converted_keypoints
 
 
-class Scale(object):
+class Scale:
     def __init__(self, prob=1, min_scale=0.5, max_scale=1.1, target_dist=0.6):
         self._prob = prob
         self._min_scale = min_scale
@@ -87,7 +85,7 @@ class Scale(object):
         return sample
 
 
-class Rotate(object):
+class Rotate:
     def __init__(self, pad, max_rotate_degree=40):
         self._pad = pad
         self._max_rotate_degree = max_rotate_degree
@@ -131,7 +129,7 @@ class Rotate(object):
                 R[1, 0] * point[0] + R[1, 1] * point[1] + R[1, 2]]
 
 
-class CropPad(object):
+class CropPad:
     def __init__(self, pad, center_perterb_max=40, crop_x=368, crop_y=368):
         self._pad = pad
         self._center_perterb_max = center_perterb_max
@@ -223,7 +221,7 @@ class CropPad(object):
         return True
 
 
-class Flip(object):
+class Flip:
     def __init__(self, prob=0.5):
         self._prob = prob
 
