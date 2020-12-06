@@ -24,6 +24,7 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 ### Other Implementations
 
 * TensorFlow by [murdockhou](https://github.com/murdockhou/lightweight_openpose).
+* OpenVINO by [Pavel Druzhkov](https://github.com/openvinotoolkit/open_model_zoo/pull/1718/).
 
 ## Requirements
 
