@@ -8,11 +8,6 @@ BODY_PARTS_PAF_IDS = ([12, 13], [20, 21], [14, 15], [16, 17], [22, 23], [24, 25]
                       [6, 7], [8, 9], [10, 11], [28, 29], [30, 31], [34, 35], [32, 33], [36, 37], [18, 19], [26, 27])
 
 
-def linspace2d(start, stop, n=10):
-    points = 1 / (n - 1) * (stop - start)
-    return points[:, None] * np.arange(n) + start[:, None]
-
-
 def extract_keypoints(heatmap, all_keypoints, total_keypoint_num):
     heatmap[heatmap < 0.1] = 0
     heatmap_with_borders = np.pad(heatmap, [(2, 2), (2, 2)], mode='constant')
@@ -48,111 +43,74 @@ def extract_keypoints(heatmap, all_keypoints, total_keypoint_num):
     return keypoint_num
 
 
-def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_score=0.05, demo=False):
+def connections_nms(a_idx, b_idx, affinity_scores):
+    # From all retrieved connections that share the same starting/ending keypoints leave only the top-scoring ones.
+    order = affinity_scores.argsort()[::-1]
+    affinity_scores = affinity_scores[order]
+    a_idx = a_idx[order]
+    b_idx = b_idx[order]
+    idx = []
+    has_kpt_a = set()
+    has_kpt_b = set()
+    for t, (i, j) in enumerate(zip(a_idx, b_idx)):
+        if i not in has_kpt_a and j not in has_kpt_b:
+            idx.append(t)
+            has_kpt_a.add(i)
+            has_kpt_b.add(j)
+    idx = np.asarray(idx, dtype=np.int32)
+    return a_idx[idx], b_idx[idx], affinity_scores[idx]
+
+
+def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_score=0.05):
     pose_entries = []
     all_keypoints = np.array([item for sublist in all_keypoints_by_type for item in sublist])
+    points_per_limb = 10
+    grid = np.arange(points_per_limb, dtype=np.float32).reshape(1, -1, 1)
+    all_keypoints_by_type = [np.array(keypoints, np.float32) for keypoints in all_keypoints_by_type]
     for part_id in range(len(BODY_PARTS_PAF_IDS)):
         part_pafs = pafs[:, :, BODY_PARTS_PAF_IDS[part_id]]
         kpts_a = all_keypoints_by_type[BODY_PARTS_KPT_IDS[part_id][0]]
         kpts_b = all_keypoints_by_type[BODY_PARTS_KPT_IDS[part_id][1]]
-        num_kpts_a = len(kpts_a)
-        num_kpts_b = len(kpts_b)
-        kpt_a_id = BODY_PARTS_KPT_IDS[part_id][0]
-        kpt_b_id = BODY_PARTS_KPT_IDS[part_id][1]
-
-        if num_kpts_a == 0 and num_kpts_b == 0:  # no keypoints for such body part
-            continue
-        elif num_kpts_a == 0:  # body part has just 'b' keypoints
-            for i in range(num_kpts_b):
-                num = 0
-                for j in range(len(pose_entries)):  # check if already in some pose, was added by another body part
-                    if pose_entries[j][kpt_b_id] == kpts_b[i][3]:
-                        num += 1
-                        continue
-                if num == 0:
-                    pose_entry = np.ones(pose_entry_size) * -1
-                    pose_entry[kpt_b_id] = kpts_b[i][3]  # keypoint idx
-                    pose_entry[-1] = 1                   # num keypoints in pose
-                    pose_entry[-2] = kpts_b[i][2]        # pose score
-                    pose_entries.append(pose_entry)
-            continue
-        elif num_kpts_b == 0:  # body part has just 'a' keypoints
-            for i in range(num_kpts_a):
-                num = 0
-                for j in range(len(pose_entries)):
-                    if pose_entries[j][kpt_a_id] == kpts_a[i][3]:
-                        num += 1
-                        continue
-                if num == 0:
-                    pose_entry = np.ones(pose_entry_size) * -1
-                    pose_entry[kpt_a_id] = kpts_a[i][3]
-                    pose_entry[-1] = 1
-                    pose_entry[-2] = kpts_a[i][2]
-                    pose_entries.append(pose_entry)
+        n = len(kpts_a)
+        m = len(kpts_b)
+        if n == 0 or m == 0:
             continue
 
-        connections = []
-        for i in range(num_kpts_a):
-            kpt_a = np.array(kpts_a[i][0:2])
-            for j in range(num_kpts_b):
-                kpt_b = np.array(kpts_b[j][0:2])
-                mid_point = [(), ()]
-                mid_point[0] = (int(round((kpt_a[0] + kpt_b[0]) * 0.5)),
-                                int(round((kpt_a[1] + kpt_b[1]) * 0.5)))
-                mid_point[1] = mid_point[0]
+        # Get vectors between all pairs of keypoints, i.e. candidate limb vectors.
+        a = kpts_a[:, :2]
+        a = np.broadcast_to(a[None], (m, n, 2))
+        b = kpts_b[:, :2]
+        vec_raw = (b[:, None, :] - a).reshape(-1, 1, 2)
 
-                vec = [kpt_b[0] - kpt_a[0], kpt_b[1] - kpt_a[1]]
-                vec_norm = math.sqrt(vec[0] ** 2 + vec[1] ** 2)
-                if vec_norm == 0:
-                    continue
-                vec[0] /= vec_norm
-                vec[1] /= vec_norm
-                cur_point_score = (vec[0] * part_pafs[mid_point[0][1], mid_point[0][0], 0] +
-                                   vec[1] * part_pafs[mid_point[1][1], mid_point[1][0], 1])
+        # Sample points along every candidate limb vector.
+        steps = (1 / (points_per_limb - 1) * vec_raw)
+        points = steps * grid + a.reshape(-1, 1, 2)
+        points = points.round().astype(dtype=np.int32)
+        x = points[..., 0].ravel()
+        y = points[..., 1].ravel()
 
-                height_n = pafs.shape[0] // 2
-                success_ratio = 0
-                point_num = 10  # number of points to integration over paf
-                if cur_point_score > -100:
-                    passed_point_score = 0
-                    passed_point_num = 0
-                    x, y = linspace2d(kpt_a, kpt_b)
-                    for point_idx in range(point_num):
-                        if not demo:
-                            px = int(round(x[point_idx]))
-                            py = int(round(y[point_idx]))
-                        else:
-                            px = int(x[point_idx])
-                            py = int(y[point_idx])
-                        paf = part_pafs[py, px, 0:2]
-                        cur_point_score = vec[0] * paf[0] + vec[1] * paf[1]
-                        if cur_point_score > min_paf_score:
-                            passed_point_score += cur_point_score
-                            passed_point_num += 1
-                    success_ratio = passed_point_num / point_num
-                    ratio = 0
-                    if passed_point_num > 0:
-                        ratio = passed_point_score / passed_point_num
-                    ratio += min(height_n / vec_norm - 1, 0)
-                if ratio > 0 and success_ratio > 0.8:
-                    score_all = ratio + kpts_a[i][2] + kpts_b[j][2]
-                    connections.append([i, j, ratio, score_all])
-        if len(connections) > 0:
-            connections = sorted(connections, key=itemgetter(2), reverse=True)
+        # Compute affinity score between candidate limb vectors and part affinity field.
+        field = part_pafs[y, x].reshape(-1, points_per_limb, 2)
+        vec_norm = np.linalg.norm(vec_raw, ord=2, axis=-1, keepdims=True)
+        vec = vec_raw / (vec_norm + 1e-6)
+        affinity_scores = (field * vec).sum(-1).reshape(-1, points_per_limb)
+        valid_affinity_scores = affinity_scores > min_paf_score
+        valid_num = valid_affinity_scores.sum(1)
+        affinity_scores = (affinity_scores * valid_affinity_scores).sum(1) / (valid_num + 1e-6)
+        success_ratio = valid_num / points_per_limb
 
-        num_connections = min(num_kpts_a, num_kpts_b)
-        has_kpt_a = np.zeros(num_kpts_a, dtype=np.int32)
-        has_kpt_b = np.zeros(num_kpts_b, dtype=np.int32)
-        filtered_connections = []
-        for row in range(len(connections)):
-            if len(filtered_connections) == num_connections:
-                break
-            i, j, cur_point_score = connections[row][0:3]
-            if not has_kpt_a[i] and not has_kpt_b[j]:
-                filtered_connections.append([kpts_a[i][3], kpts_b[j][3], cur_point_score])
-                has_kpt_a[i] = 1
-                has_kpt_b[j] = 1
-        connections = filtered_connections
+        # Get a list of limbs according to the obtained affinity score.
+        valid_limbs = np.where(np.logical_and(affinity_scores > 0, success_ratio > 0.8))[0]
+        if len(valid_limbs) == 0:
+            continue
+        b_idx, a_idx = np.divmod(valid_limbs, n)
+        affinity_scores = affinity_scores[valid_limbs]
+
+        # Suppress incompatible connections.
+        a_idx, b_idx, affinity_scores = connections_nms(a_idx, b_idx, affinity_scores)
+        connections = list(zip(kpts_a[a_idx, 3].astype(np.int32),
+                               kpts_b[b_idx, 3].astype(np.int32),
+                               affinity_scores))
         if len(connections) == 0:
             continue
 
