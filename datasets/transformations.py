@@ -173,7 +173,7 @@ class CropPad:
         if image_y_start < 0:
             crop_y_start -= image_y_start
             image_y_start = 0
-        if image_y_start >= w:
+        if image_y_start >= h:
             should_crop = False
 
         if image_x_finish > w:
