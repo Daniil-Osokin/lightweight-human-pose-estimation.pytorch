@@ -1,11 +1,11 @@
 <launch>
-    <arg name ="checkpoint_path"        default="$(find lightweight_human_pose_estimation)/script/checkpoint_iter_370000.pth"/>
+    <arg name ="checkpoint_path"        default="$(find lightweight_human_pose_estimation)/script/checkpoints/checkpoint_iter_370000.pth"/>
     <arg name ="height_size"            default="256"/>
     <arg name ="pose_img_show_flag"     default="false"/>
     <arg name ="pose_pub_result_image"  default="true"/>
     <arg name ="needs_time_stamp"       default="true"/>
     <arg name ="pose_image_topic_name"  default="/camera/rgb/image_raw"/>
-    <arg name ="cpu"                    default="false"/>
+    <arg name ="cpu"                    default="true"/>
     <arg name ="track"                  default="1"/>
     <arg name ="smooth"                 default="1"/>
 

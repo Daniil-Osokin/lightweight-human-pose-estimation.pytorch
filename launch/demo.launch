@@ -3,13 +3,13 @@
     </include>
 
     <include file="$(find lightweight_human_pose_estimation)/launch/human_pose_estimation.launch" >
-        <arg name ="checkpoint_path"        value="$(find lightweight_human_pose_estimation)/script/checkpoint_iter_370000.pth"/>
+        <arg name ="checkpoint_path"        value="$(find lightweight_human_pose_estimation)/script/checkpoints/checkpoint_iter_370000.pth"/>
         <arg name ="height_size"            value="256"/>
         <arg name ="pose_img_show_flag"     value="true"/>
         <arg name ="pose_pub_result_image"  value="true"/>
         <arg name ="needs_time_stamp"       value="true"/>
         <arg name ="pose_image_topic_name"  value="/camera/rgb/image_raw"/> 
-        <arg name ="cpu"                    value="false"/>
+        <arg name ="cpu"                    value="true"/>
         <arg name ="track"                  value="1"/>
         <arg name ="smooth"                 value="1"/>
     </include>
