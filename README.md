@@ -171,7 +171,7 @@ We provide python demo just for the quick results preview. Please, consider c++ 
 
 ```bash
 $ cd script
-$ python3 demo.py --checkpoint-path script/checkpoints/checkpoint_iter_370000.pth --video 0
+$ python3 demo.py --checkpoint-path checkpoints/checkpoint_iter_370000.pth --video 0
 ```
 
 ## 参考文献
