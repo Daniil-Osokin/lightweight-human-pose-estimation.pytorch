@@ -1,0 +1,6 @@
+<launch>
+        <node name="human_pose_tf_broadcaster" pkg="lightweight_human_pose_estimation" type="human_pose_tf_broadcaster" output="screen">
+            <param name="base_frame_name" value="base_link"/>
+            <param name="cloud_topic_name" value="/points2"/>
+        </node>
+</launch>
