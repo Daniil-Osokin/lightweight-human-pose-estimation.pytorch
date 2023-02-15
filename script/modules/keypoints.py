@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from operator import itemgetter
+import rospy
 
 BODY_PARTS_KPT_IDS = [[1, 2], [1, 5], [2, 3], [3, 4], [5, 6], [6, 7], [1, 8], [8, 9], [9, 10], [1, 11],
                       [11, 12], [12, 13], [1, 0], [0, 14], [14, 16], [0, 15], [15, 17], [2, 16], [5, 17]]
@@ -71,6 +72,7 @@ def group_keypoints(all_keypoints_by_type, pafs, pose_entry_size=20, min_paf_sco
         part_pafs = pafs[:, :, BODY_PARTS_PAF_IDS[part_id]]
         kpts_a = all_keypoints_by_type[BODY_PARTS_KPT_IDS[part_id][0]]
         kpts_b = all_keypoints_by_type[BODY_PARTS_KPT_IDS[part_id][1]]
+        rospy.loginfo(kpts_a)
         n = len(kpts_a)
         m = len(kpts_b)
         if n == 0 or m == 0:
