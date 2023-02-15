@@ -1,0 +1,28 @@
+<launch>
+    <arg name ="checkpoint_path"        default="$(find lightweight_human_pose_estimation)/script/checkpoints/checkpoint_iter_370000.pth"/>
+    <arg name ="height_size"            default="256"/>
+    <arg name ="pose_img_show_flag"     default="false"/>
+    <arg name ="pose_pub_result_image"  default="true"/>
+    <arg name ="needs_time_stamp"       default="true"/>
+    <arg name ="pose_image_topic_name"  default="/camera/rgb/image_raw"/>
+    <arg name ="cpu"                    default="true"/>
+    <arg name ="track"                  default="1"/>
+    <arg name ="smooth"                 default="1"/>
+
+    <group ns = "human_pose_estimation">
+        <node name="lightweight_human_pose_estimation" pkg = "lightweight_human_pose_estimation" type="human_pose_estimation.py">
+            <param name="checkpoint_path"       type="str"      value="$(arg checkpoint_path)"/>
+            <param name="height_size"           type="int"      value="$(arg height_size)"/>
+
+            <param name="pose_img_show_flag"    type="bool"     value="$(arg pose_img_show_flag)"/>                 <!--  -->
+            <param name="pose_pub_result_image" type="bool"     value="$(arg pose_pub_result_image)"/>              <!--  -->
+            <param name="needs_time_stamp"      type="bool"     value="$(arg needs_time_stamp)"/>                   <!-- publish boundingboxes with time stamp -->
+
+            <param name="pose_image_topic_name" type="str"      value="$(arg pose_image_topic_name)"/>
+
+            <param name="cpu"                   type="bool"     value="$(arg cpu)"/>
+            <param name="track"                 type="int"      value="$(arg track)"/>
+            <param name="smooth"                type="int"      value="$(arg smooth)"/>
+        </node>
+    </group>
+</launch>
