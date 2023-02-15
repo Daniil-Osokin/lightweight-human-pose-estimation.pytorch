@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lightweight_human_pose_estimation)
 
-## Compile as C++14, supported in ROS Noeitc and newer
+## Compile as C++14, supported in ROS Noetic and newer
 # add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
