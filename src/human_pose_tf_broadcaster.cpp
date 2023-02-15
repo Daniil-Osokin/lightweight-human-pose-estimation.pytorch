@@ -312,7 +312,7 @@ class Pose3D {
             
             // pub_keypoints_3d_ = nh_.advertise<lightweight_human_pose_estimation::KeyPoints_3d>("keypoints_3d", 10);
             pub_keypoints_3d_ = nh_.advertise<lightweight_human_pose_estimation::KeyPoints_3d>("/lightweight_human_pose_estimation/human_pose_estimation/pose_3d", 10);
-            sub_keypoints_2d_.reset(new message_filters::Subscriber<lightweight_human_pose_estimation::KeyPoints>(nh_, msg_topic_2d_, 20));
+            sub_keypoints_2d_.reset(new message_filters::Subscriber<lightweight_human_pose_estimation::KeyPoints>(nh_, msg_topic_2d_, 5));
             sub_pcl_.reset(new message_filters::Subscriber<sensor_msgs::PointCloud2>(nh_, cloud_topic_name_, 5));
             
             cloud_transformed_.reset(new PointCloud());
