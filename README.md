@@ -9,13 +9,16 @@
 
 ## Table of Contents
 
-* [Requirements](#requirements)
-* [Prerequisites](#prerequisites)
-* [Training](#training)
-* [Validation](#validation)
+* [環境](#環境)
+* [インストール方法](#インストール方法)
+* [起動方法](#起動方法)
+* [学習のための事前設定](#学習のための事前設定)
+* [学習](#学習)
+* [既知の問題点](#既知の問題点)
+* [検証](#検証)
 * [Pre-trained model](#pre-trained-model)
-* [Python demo](#python-demo)
-* [Citation](#citation)
+* [Pythonデモ](#Pythonデモ)
+* [参考文献](#参考文献)
 
 
 ## 環境
@@ -45,13 +48,13 @@ $ roslaunch lightweight_human_pose_estimation camera.launch
 ```
 
 ※以下のようなエラーが発生した場合：
-```python3
+```bash
 [ERROR] [1663911409.917317256]: Permission denied opening /dev/bus/usb/001/002
 ```
 
 次のを実行してください：
-```python3
-sudo chmod o+w /dev/bus/usb/001/002
+```bash
+$ sudo chmod o+w /dev/bus/usb/001/002
 ```
 
 ### 骨格検出起動
@@ -68,7 +71,11 @@ $ roslaunch lightweight_human_pose_estimation demo.launch
 ## 学習のための事前設定
 
 1. Download COCO 2017 dataset: [http://cocodataset.org/#download](http://cocodataset.org/#download) (train, val, annotations) and unpack it to `<COCO_HOME>` folder.
-2. Install requirements `python3 -m pip install -r requirements.txt`
+2. Install requirements
+
+```bash
+$ python3 -m pip install -r requirements.txt
+```
 
 ## 学習
 
@@ -79,15 +86,41 @@ Training consists of 3 steps (given AP values for full validation dataset):
 
 1. Download pre-trained MobileNet v1 weights `mobilenet_sgd_68.848.pth.tar` from: [https://github.com/marvis/pytorch-mobilenet](https://github.com/marvis/pytorch-mobilenet) (sgd option). If this doesn't work, download from [GoogleDrive](https://drive.google.com/file/d/18Ya27IAhILvBHqV_tDp0QjDFvsNNy-hv/view?usp=sharing).
 
-2. Convert train annotations in internal format. Run `python scripts/prepare_train_labels.py --labels <COCO_HOME>/annotations/person_keypoints_train2017.json`. It will produce `prepared_train_annotation.pkl` with converted in internal format annotations.
+2. Convert train annotations in internal format. Run:
 
-   [OPTIONAL] For fast validation it is recommended to make *subset* of validation dataset. Run `python scripts/make_val_subset.py --labels <COCO_HOME>/annotations/person_keypoints_val2017.json`. It will produce `val_subset.json` with annotations just for 250 random images (out of 5000).
+```bash
+$ python3 scripts/prepare_train_labels.py --labels <COCO_HOME>/annotations/person_keypoints_train2017.json
+```
 
-3. To train from MobileNet weights, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/mobilenet_sgd_68.848.pth.tar --from-mobilenet`
+It will produce `prepared_train_annotation.pkl` with converted in internal format annotations.
 
-4. Next, to train from checkpoint from previous step, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_420000.pth --weights-only`
+   [OPTIONAL] For fast validation it is recommended to make *subset* of validation dataset. Run:
 
-5. Finally, to train from checkpoint from previous step and 3 refinement stages in network, run `python train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_280000.pth --weights-only --num-refinement-stages 3`. We took checkpoint after 370000 iterations as the final one.
+```bash
+$ python3 scripts/make_val_subset.py --labels <COCO_HOME>/annotations/person_keypoints_val2017.json
+```
+
+It will produce `val_subset.json` with annotations just for 250 random images (out of 5000).
+
+3. To train from MobileNet weights, run:
+
+```bash
+$ python3 train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/mobilenet_sgd_68.848.pth.tar --from-mobilenet
+```
+
+4. Next, to train from checkpoint from previous step, run:
+
+```bash
+$ python3 train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_420000.pth --weights-only
+```
+
+5. Finally, to train from checkpoint from previous step and 3 refinement stages in network, run:
+
+```bash
+$ python3 train.py --train-images-folder <COCO_HOME>/train2017/ --prepared-train-labels prepared_train_annotation.pkl --val-labels val_subset.json --val-images-folder <COCO_HOME>/val2017/ --checkpoint-path <path_to>/checkpoint_iter_280000.pth --weights-only --num-refinement-stages 3
+```
+
+We took checkpoint after 370000 iterations as the final one.
 
 We did not perform the best checkpoint selection at any step, so similar result may be achieved after less number of iterations.
 
@@ -121,20 +154,27 @@ To get rid of it, increase the limit to bigger number, e.g. 65536, run in the te
 
 ## 検証
 
-1. Run `python val.py --labels <COCO_HOME>/annotations/person_keypoints_val2017.json --images-folder <COCO_HOME>/val2017 --checkpoint-path <CHECKPOINT>`
+1. Run:
 
-## Pre-trained model <a name="pre-trained-model"/>
+```bash
+$ python3 val.py --labels <COCO_HOME>/annotations/person_keypoints_val2017.json --images-folder <COCO_HOME>/val2017 --checkpoint-path <CHECKPOINT>
+```
+
+## Pre-trained model
 
 The model expects normalized image (mean=[128, 128, 128], scale=[1/256, 1/256, 1/256]) in planar BGR format.
 Pre-trained on COCO model is available at: https://download.01.org/opencv/openvino_training_extensions/models/human_pose_estimation/checkpoint_iter_370000.pth, it has 40% of AP on COCO validation set (38.6% of AP on the val *subset*).
 
-## Pythonデモ <a name="python-demo"/>
+## Pythonデモ
 
 We provide python demo just for the quick results preview. Please, consider c++ demo for the best performance. To run the python demo from a webcam:
-* `cd script`
-* `python3 demo.py --checkpoint-path script/checkpoints/checkpoint_iter_370000.pth --video 0`
 
-## 参考文献:
+```bash
+$ cd script
+$ python3 demo.py --checkpoint-path script/checkpoints/checkpoint_iter_370000.pth --video 0
+```
+
+## 参考文献
 
 If this helps your research, please cite the paper:
 
