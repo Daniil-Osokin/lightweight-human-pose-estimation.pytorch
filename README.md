@@ -1,10 +1,10 @@
 # Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose (ROS support) 
 
-論文 [Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose](https://arxiv.org/pdf/1811.12004.pdf) の学習用コードが実装されたレポジトリをROS1に対応したforkレポジトリです。[OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) の手法を大幅に最適化し、CPU上で精度を落とさずにリアルタイム推論ができるようにしたものです。画像中にいる人物のポーズを特定するために、骨格（キーポイントとそれらの間の接続で構成される）を検出する。「耳、目、鼻、首、肩、肘、手首、腰、膝、足首」の最大18個の骨格のリアルタイムに推定できます。
+論文 [Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose](https://arxiv.org/pdf/1811.12004.pdf) の学習用コードが実装されたレポジトリをROS1に対応したforkレポジトリとなります。[OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) の手法を大幅に最適化し、CPU上で精度を落とさずにリアルタイム推論ができるようにしたものです。画像中にいる人物のポーズを特定するために、骨格（キーポイントとそれらの間の接続で構成される）を検出する。「耳、目、鼻、首、肩、肘、手首、腰、膝、足首」の最大18個の骨格のリアルタイムに推定できます。
 
 
 <p align="center">
-  <img src="img/preview2.png" height="320"/>
+  <img src="img/preview_2.png" height="320"/>
 </p>
 
 ## Table of Contents
@@ -14,7 +14,6 @@
 * [Training](#training)
 * [Validation](#validation)
 * [Pre-trained model](#pre-trained-model)
-* [C++ demo](#cpp-demo)
 * [Python demo](#python-demo)
 * [Citation](#citation)
 
@@ -27,10 +26,49 @@
 * OpenCV 4.6.0
 * ROS Noetic Ninjemys
 
-## 学習のための設定
+## インストール方法
+
+```bash
+$ cd ~/catkin_ws/src/
+$ git clone https://gitlab.com/TeamSOBITS/lightweight_human_pose_estimation.git
+$ cd lightweight_human_pose_estimation
+$ bash install.sh
+$ cd ~/catkin_ws/
+$ catkin_make 
+```
+
+## 起動方法
+### カメラの起動
+
+```bash
+$ roslaunch lightweight_human_pose_estimation camera.launch
+```
+
+※以下のようなエラーが発生した場合：
+```python3
+[ERROR] [1663911409.917317256]: Permission denied opening /dev/bus/usb/001/002
+```
+
+次のを実行してください：
+```python3
+sudo chmod o+w /dev/bus/usb/001/002
+```
+
+### 骨格検出起動
+```bash
+$ roslaunch lightweight_human_pose_estimation human_pose_estimation.launch
+```
+
+### デモ実行
+```bash
+$ roslaunch lightweight_human_pose_estimation demo.launch
+
+```
+
+## 学習のための事前設定
 
 1. Download COCO 2017 dataset: [http://cocodataset.org/#download](http://cocodataset.org/#download) (train, val, annotations) and unpack it to `<COCO_HOME>` folder.
-2. Install requirements `pip install -r requirements.txt`
+2. Install requirements `python3 -m pip install -r requirements.txt`
 
 ## 学習
 
@@ -93,7 +131,8 @@ Pre-trained on COCO model is available at: https://download.01.org/opencv/openvi
 ## Pythonデモ <a name="python-demo"/>
 
 We provide python demo just for the quick results preview. Please, consider c++ demo for the best performance. To run the python demo from a webcam:
-* `python demo.py --checkpoint-path <path_to>/checkpoint_iter_370000.pth --video 0`
+* `cd script`
+* `python3 demo.py --checkpoint-path script/checkpoints/checkpoint_iter_370000.pth --video 0`
 
 ## 参考文献:
 
