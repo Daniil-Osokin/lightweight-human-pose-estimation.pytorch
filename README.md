@@ -1,14 +1,11 @@
-# Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose
+# Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose (ROS support) 
 
-This repository contains training code for the paper [Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose](https://arxiv.org/pdf/1811.12004.pdf). This work heavily optimizes the [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) approach to reach real-time inference on CPU with negliable accuracy drop. It detects a skeleton (which consists of keypoints and connections between them) to identify human poses for every person inside the image. The pose may contain up to 18 keypoints: ears, eyes, nose, neck, shoulders, elbows, wrists, hips, knees, and ankles. On COCO 2017 Keypoint Detection validation set this code achives 40% AP for the single scale inference (no flip or any post-processing done). The result can be reproduced using this repository. *This repo significantly overlaps with https://github.com/opencv/openvino_training_extensions, however contains just the necessary code for human pose estimation.*
+論文 [Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose](https://arxiv.org/pdf/1811.12004.pdf) の学習用コードが実装されたレポジトリをROS1に対応したforkレポジトリです。[OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) の手法を大幅に最適化し、CPU上で精度を落とさずにリアルタイム推論ができるようにしたものです。画像中にいる人物のポーズを特定するために、骨格（キーポイントとそれらの間の接続で構成される）を検出する。「耳、目、鼻、首、肩、肘、手首、腰、膝、足首」の最大18個の骨格のリアルタイムに推定できます。
+
 
 <p align="center">
-  <img src="data/preview.jpg" />
+  <img src="img/preview2.png" height="320"/>
 </p>
-
-:fire: Check out our [new work](https://github.com/Daniil-Osokin/gccpm-look-into-person-cvpr19.pytorch) on accurate (and still fast) single-person pose estimation, which ranked 10<sup>th</sup> on CVPR'19 [Look-Into-Person](http://47.100.21.47:9999/index.php) challenge.
-
-:fire::fire: Check out our lightweight [3D pose estimation](https://github.com/Daniil-Osokin/lightweight-human-pose-estimation-3d-demo.pytorch), which is based on [Single-Shot Multi-Person 3D Pose Estimation From Monocular RGB](https://arxiv.org/pdf/1712.03453.pdf) paper and this work.
 
 ## Table of Contents
 
@@ -21,23 +18,21 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 * [Python demo](#python-demo)
 * [Citation](#citation)
 
-### Other Implementations
 
-* TensorFlow by [murdockhou](https://github.com/murdockhou/lightweight_openpose).
-* OpenVINO by [Pavel Druzhkov](https://github.com/openvinotoolkit/open_model_zoo/pull/1718/).
+## 環境
 
-## Requirements
+* Ubuntu 20.04
+* Python 3.8
+* PyTorch 1.13.1
+* OpenCV 4.6.0
+* ROS Noetic Ninjemys
 
-* Ubuntu 16.04
-* Python 3.6
-* PyTorch 0.4.1 (should also work with 1.0, but not tested)
-
-## Prerequisites
+## 学習のための設定
 
 1. Download COCO 2017 dataset: [http://cocodataset.org/#download](http://cocodataset.org/#download) (train, val, annotations) and unpack it to `<COCO_HOME>` folder.
 2. Install requirements `pip install -r requirements.txt`
 
-## Training
+## 学習
 
 Training consists of 3 steps (given AP values for full validation dataset):
 * Training from MobileNet weights. Expected AP after this step is ~38%.
@@ -58,7 +53,7 @@ Training consists of 3 steps (given AP values for full validation dataset):
 
 We did not perform the best checkpoint selection at any step, so similar result may be achieved after less number of iterations.
 
-#### Known issue
+#### 既知の問題点
 
 We observe this error with maximum number of open files (`ulimit -n`) equals to 1024:
 
@@ -86,7 +81,7 @@ RuntimeError: received 0 items of ancdata
 
 To get rid of it, increase the limit to bigger number, e.g. 65536, run in the terminal: `ulimit -n 65536`
 
-## Validation
+## 検証
 
 1. Run `python val.py --labels <COCO_HOME>/annotations/person_keypoints_val2017.json --images-folder <COCO_HOME>/val2017 --checkpoint-path <CHECKPOINT>`
 
@@ -95,21 +90,12 @@ To get rid of it, increase the limit to bigger number, e.g. 65536, run in the te
 The model expects normalized image (mean=[128, 128, 128], scale=[1/256, 1/256, 1/256]) in planar BGR format.
 Pre-trained on COCO model is available at: https://download.01.org/opencv/openvino_training_extensions/models/human_pose_estimation/checkpoint_iter_370000.pth, it has 40% of AP on COCO validation set (38.6% of AP on the val *subset*).
 
-#### Conversion to OpenVINO format
-
-1. Convert PyTorch model to ONNX format: run script in terminal `python scripts/convert_to_onnx.py --checkpoint-path <CHECKPOINT>`. It produces `human-pose-estimation.onnx`.
-2. Convert ONNX model to OpenVINO format with Model Optimizer: run in terminal `python <OpenVINO_INSTALL_DIR>/deployment_tools/model_optimizer/mo.py --input_model human-pose-estimation.onnx --input data --mean_values data[128.0,128.0,128.0] --scale_values data[256] --output stage_1_output_0_pafs,stage_1_output_1_heatmaps`. This produces model `human-pose-estimation.xml` and weights `human-pose-estimation.bin` in single-precision floating-point format (FP32).
-
-## C++ Demo <a name="cpp-demo"/>
-
-To run the demo download Intel&reg; OpenVINO&trade; Toolkit [https://software.intel.com/en-us/openvino-toolkit/choose-download](https://software.intel.com/en-us/openvino-toolkit/choose-download), install it and [build the samples](https://software.intel.com/en-us/articles/OpenVINO-InferEngine) (*Inferring Your Model with the Inference Engine Samples* part). Then run `<SAMPLES_BIN_FOLDER>/human_pose_estimation_demo -m <path_to>/human-pose-estimation.xml -i <path_to_video_file>` for the inference on `CPU`.
-
-## Python Demo <a name="python-demo"/>
+## Pythonデモ <a name="python-demo"/>
 
 We provide python demo just for the quick results preview. Please, consider c++ demo for the best performance. To run the python demo from a webcam:
 * `python demo.py --checkpoint-path <path_to>/checkpoint_iter_370000.pth --video 0`
 
-## Citation:
+## 参考文献:
 
 If this helps your research, please cite the paper:
 
