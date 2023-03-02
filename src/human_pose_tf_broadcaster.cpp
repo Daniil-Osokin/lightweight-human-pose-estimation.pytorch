@@ -68,9 +68,9 @@ class Pose3D {
                 
                 return;
             }
-            else{
-                ROS_INFO("TF can be transformed");
-            }
+            // else{
+            //     ROS_INFO("TF can be transformed");
+            // }
 
 			// Copy Point Cloud to 'cloud_transformed_'
             if (!pcl_ros::transformPointCloud(base_frame_name_, cloud_src, *cloud_transformed_, tf_listener_)) {
@@ -95,79 +95,98 @@ class Pose3D {
             int i_h = 0;
             // TODO: start here the loop for multiple humans
             for (int i_h = 0; i_h < keypoints_2d.key_point.size(); i_h++) {
-                for (int i_b = 0; i_b < 18; i_b++) {
+                // for (int i_b = 0; i_b < 18; i_b++) {
+                for (std::string body_part : body_part_list) {
                     geometry_msgs::Point body_point;
                     int pt_x, pt_y;
                     
-                    if (body_part_list[i_b] == "r_eye"){
+                    // if (body_part_list[i_b] == "r_eye"){
+                    if (body_part == "r_eye"){
                         pt_x = keypoints_2d.key_point[i_h].r_eye.x;
                         pt_y = keypoints_2d.key_point[i_h].r_eye.y;
                     }
-                    else if (body_part_list[i_b] == "l_eye"){
+                    // else if (body_part_list[i_b] == "l_eye"){
+                    else if (body_part == "l_eye"){
                         pt_x = keypoints_2d.key_point[i_h].l_eye.x;
                         pt_y = keypoints_2d.key_point[i_h].l_eye.y;
                     }
-                    else if (body_part_list[i_b] == "r_ear"){
+                    // else if (body_part_list[i_b] == "r_ear"){
+                    else if (body_part == "r_ear"){
                         pt_x = keypoints_2d.key_point[i_h].r_ear.x;
                         pt_y = keypoints_2d.key_point[i_h].r_ear.y;
                     }
-                    else if (body_part_list[i_b] == "l_ear"){
+                    // else if (body_part_list[i_b] == "l_ear"){
+                    else if (body_part == "l_ear"){
                         pt_x = keypoints_2d.key_point[i_h].l_ear.x;
                         pt_y = keypoints_2d.key_point[i_h].l_ear.y;
                     }
-                    else if (body_part_list[i_b] == "nose"){
+                    // else if (body_part_list[i_b] == "nose"){
+                    else if (body_part == "nose"){
                         pt_x = keypoints_2d.key_point[i_h].nose.x;
                         pt_y = keypoints_2d.key_point[i_h].nose.y;
                     }
-                    else if (body_part_list[i_b] == "neck"){
+                    // else if (body_part_list[i_b] == "neck"){
+                    else if (body_part == "neck"){
                         pt_x = keypoints_2d.key_point[i_h].neck.x;
                         pt_y = keypoints_2d.key_point[i_h].neck.y;
                     }
-                    else if (body_part_list[i_b] == "r_sho"){
+                    // else if (body_part_list[i_b] == "r_sho"){
+                    else if (body_part == "r_sho"){
                         pt_x = keypoints_2d.key_point[i_h].r_sho.x;
                         pt_y = keypoints_2d.key_point[i_h].r_sho.y;
                     }
-                    else if (body_part_list[i_b] == "l_sho"){
+                    // else if (body_part_list[i_b] == "l_sho"){
+                    else if (body_part == "l_sho"){
                         pt_x = keypoints_2d.key_point[i_h].l_sho.x;
                         pt_y = keypoints_2d.key_point[i_h].l_sho.y;
                     }
-                    else if (body_part_list[i_b] == "r_elb"){
+                    // else if (body_part_list[i_b] == "r_elb"){
+                    else if (body_part == "r_elb"){
                         pt_x = keypoints_2d.key_point[i_h].r_elb.x;
                         pt_y = keypoints_2d.key_point[i_h].r_elb.y;
                     }
-                    else if (body_part_list[i_b] == "l_elb"){
+                    // else if (body_part_list[i_b] == "l_elb"){
+                    else if (body_part == "l_elb"){
                         pt_x = keypoints_2d.key_point[i_h].l_elb.x;
                         pt_y = keypoints_2d.key_point[i_h].l_elb.y;
                     }
-                    else if (body_part_list[i_b] == "r_wri"){
+                    // else if (body_part_list[i_b] == "r_wri"){
+                    else if (body_part == "r_wri"){
                         pt_x = keypoints_2d.key_point[i_h].r_wri.x;
                         pt_y = keypoints_2d.key_point[i_h].r_wri.y;
                     }
-                    else if (body_part_list[i_b] == "l_wri"){
+                    // else if (body_part_list[i_b] == "l_wri"){
+                    else if (body_part == "l_wri"){
                         pt_x = keypoints_2d.key_point[i_h].l_wri.x;
                         pt_y = keypoints_2d.key_point[i_h].l_wri.y;
                     }
-                    else if (body_part_list[i_b] == "r_hip"){
+                    // else if (body_part_list[i_b] == "r_hip"){
+                    else if (body_part == "r_hip"){
                         pt_x = keypoints_2d.key_point[i_h].r_hip.x;
                         pt_y = keypoints_2d.key_point[i_h].r_hip.y;
                     }
-                    else if (body_part_list[i_b] == "l_hip"){
+                    // else if (body_part_list[i_b] == "l_hip"){
+                    else if (body_part == "l_hip"){
                         pt_x = keypoints_2d.key_point[i_h].l_hip.x;
                         pt_y = keypoints_2d.key_point[i_h].l_hip.y;
                     }
-                    else if (body_part_list[i_b] == "r_knee"){
+                    // else if (body_part_list[i_b] == "r_knee"){
+                    else if (body_part == "r_knee"){
                         pt_x = keypoints_2d.key_point[i_h].r_knee.x;
                         pt_y = keypoints_2d.key_point[i_h].r_knee.y;
                     }
-                    else if (body_part_list[i_b] == "l_knee"){
+                    // else if (body_part_list[i_b] == "l_knee"){
+                    else if (body_part == "l_knee"){
                         pt_x = keypoints_2d.key_point[i_h].l_knee.x;
                         pt_y = keypoints_2d.key_point[i_h].l_knee.y;
                     }
-                    else if (body_part_list[i_b] == "r_ank"){
+                    // else if (body_part_list[i_b] == "r_ank"){
+                    else if (body_part == "r_ank"){
                         pt_x = keypoints_2d.key_point[i_h].r_ank.x;
                         pt_y = keypoints_2d.key_point[i_h].r_ank.y;
                     }
-                    else if (body_part_list[i_b] == "l_ank"){
+                    // else if (body_part_list[i_b] == "l_ank"){
+                    else if (body_part == "l_ank"){
                         pt_x = keypoints_2d.key_point[i_h].l_ank.x;
                         pt_y = keypoints_2d.key_point[i_h].l_ank.y;
                     }
@@ -177,7 +196,7 @@ class Pose3D {
 
                     // Get the 3D Pose(x,y,z) from each 2D Pose(x,y) body part by refering to the Point Cloud
                     // TODO: change 640 to the proper size of the camera (launcher? automatic?)
-                    PointT element_xyz = cloud_transformed_->points[pt_y * 640 + pt_x];
+                    PointT element_xyz = cloud_transformed_->points[pt_y * 1280 + pt_x];
                     if (std::isnan(element_xyz.x) || std::isnan(element_xyz.y) || std::isnan(element_xyz.z)) {
                         continue;
                     }
@@ -187,92 +206,110 @@ class Pose3D {
                     body_point.z = element_xyz.z;
 
                     // Copy the obtained data to the 3D Pose msg
-                    if (body_part_list[i_b] == "r_eye"){
+                    // if (body_part_list[i_b] == "r_eye"){
+                    if (body_part == "r_eye"){
                         keypoint_3d.r_eye.x = body_point.x;
                         keypoint_3d.r_eye.y = body_point.y;
                         keypoint_3d.r_eye.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_eye"){
+                    // else if (body_part_list[i_b] == "l_eye"){
+                    else if (body_part == "l_eye"){
                         keypoint_3d.l_eye.x = body_point.x;
                         keypoint_3d.l_eye.y = body_point.y;
                         keypoint_3d.l_eye.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_ear"){
+                    // else if (body_part_list[i_b] == "r_ear"){
+                    else if (body_part == "r_ear"){
                         keypoint_3d.r_ear.x = body_point.x;
                         keypoint_3d.r_ear.y = body_point.y;
                         keypoint_3d.r_ear.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_ear"){
+                    // else if (body_part_list[i_b] == "l_ear"){
+                    else if (body_part == "l_ear"){
                         keypoint_3d.l_ear.x = body_point.x;
                         keypoint_3d.l_ear.y = body_point.y;
                         keypoint_3d.l_ear.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "nose"){
+                    // else if (body_part_list[i_b] == "nose"){
+                    else if (body_part == "nose"){
                         keypoint_3d.nose.x = body_point.x;
                         keypoint_3d.nose.y = body_point.y;
                         keypoint_3d.nose.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "neck"){
+                    // else if (body_part_list[i_b] == "neck"){
+                    else if (body_part == "neck"){
                         keypoint_3d.neck.x = body_point.x;
                         keypoint_3d.neck.y = body_point.y;
                         keypoint_3d.neck.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_sho"){
+                    // else if (body_part_list[i_b] == "r_sho"){
+                    else if (body_part == "r_sho"){
                         keypoint_3d.r_sho.x = body_point.x;
                         keypoint_3d.r_sho.y = body_point.y;
                         keypoint_3d.r_sho.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_sho"){
+                    // else if (body_part_list[i_b] == "l_sho"){
+                    else if (body_part == "l_sho"){
                         keypoint_3d.l_sho.x = body_point.x;
                         keypoint_3d.l_sho.y = body_point.y;
                         keypoint_3d.l_sho.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_elb"){
+                    // else if (body_part_list[i_b] == "r_elb"){
+                    else if (body_part == "r_elb"){
                         keypoint_3d.r_elb.x = body_point.x;
                         keypoint_3d.r_elb.y = body_point.y;
                         keypoint_3d.r_elb.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_elb"){
+                    // else if (body_part_list[i_b] == "l_elb"){
+                    else if (body_part == "l_elb"){
                         keypoint_3d.l_elb.x = body_point.x;
                         keypoint_3d.l_elb.y = body_point.y;
                         keypoint_3d.l_elb.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_wri"){
+                    // else if (body_part_list[i_b] == "r_wri"){
+                    else if (body_part == "r_wri"){
                         keypoint_3d.r_wri.x = body_point.x;
                         keypoint_3d.r_wri.y = body_point.y;
                         keypoint_3d.r_wri.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_wri"){
+                    // else if (body_part_list[i_b] == "l_wri"){
+                    else if (body_part == "l_wri"){
                         keypoint_3d.l_wri.x = body_point.x;
                         keypoint_3d.l_wri.y = body_point.y;
                         keypoint_3d.l_wri.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_hip"){
+                    // else if (body_part_list[i_b] == "r_hip"){
+                    else if (body_part == "r_hip"){
                         keypoint_3d.r_hip.x = body_point.x;
                         keypoint_3d.r_hip.y = body_point.y;
                         keypoint_3d.r_hip.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_hip"){
+                    // else if (body_part_list[i_b] == "l_hip"){
+                    else if (body_part == "l_hip"){
                         keypoint_3d.l_hip.x = body_point.x;
                         keypoint_3d.l_hip.y = body_point.y;
                         keypoint_3d.l_hip.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_knee"){
+                    // else if (body_part_list[i_b] == "r_knee"){
+                    else if (body_part == "r_knee"){
                         keypoint_3d.r_knee.x = body_point.x;
                         keypoint_3d.r_knee.y = body_point.y;
                         keypoint_3d.r_knee.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_knee"){
+                    // else if (body_part_list[i_b] == "l_knee"){
+                    else if (body_part == "l_knee"){
                         keypoint_3d.l_knee.x = body_point.x;
                         keypoint_3d.l_knee.y = body_point.y;
                         keypoint_3d.l_knee.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "r_ank"){
+                    // else if (body_part_list[i_b] == "r_ank"){
+                    else if (body_part == "r_ank"){
                         keypoint_3d.r_ank.x = body_point.x;
                         keypoint_3d.r_ank.y = body_point.y;
                         keypoint_3d.r_ank.z = body_point.z;
                     }
-                    else if (body_part_list[i_b] == "l_ank"){
+                    // else if (body_part_list[i_b] == "l_ank"){
+                    else if (body_part == "l_ank"){
                         keypoint_3d.l_ank.x = body_point.x;
                         keypoint_3d.l_ank.y = body_point.y;
                         keypoint_3d.l_ank.z = body_point.z;
