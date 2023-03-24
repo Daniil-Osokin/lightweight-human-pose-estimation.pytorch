@@ -8,7 +8,8 @@
         <arg name ="pose_img_show_flag"     value="true"/>
         <arg name ="pose_pub_result_image"  value="true"/>
         <arg name ="needs_time_stamp"       value="true"/>
-        <arg name ="pose_image_topic_name"  value="/camera/rgb/image_raw"/> 
+        <!-- <arg name ="pose_image_topic_name"  value="/camera/rgb/image_raw"/>  -->
+        <arg name ="pose_image_topic_name"  value="/rgb/image_raw"/> 
         <arg name ="cpu"                    value="true"/>
         <arg name ="track"                  value="1"/>
         <arg name ="smooth"                 value="1"/>

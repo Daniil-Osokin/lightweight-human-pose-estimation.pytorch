@@ -18,5 +18,3 @@ geometry_msgs/Point l_knee
 geometry_msgs/Point r_ank
 geometry_msgs/Point l_ank
 
-
-

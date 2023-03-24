@@ -2,12 +2,21 @@ cmake_minimum_required(VERSION 3.0.2)
 project(lightweight_human_pose_estimation)
 
 ## Compile as C++14, supported in ROS Noetic and newer
-# add_compile_options(-std=c++14)
+add_compile_options(-std=c++14)
+
+find_package(OpenCV 4.6.0 REQUIRED PATHS "/opt/opencv/opencv_4.6.0/")
+
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  pcl_conversions
+  pcl_ros
+  message_filters
+  tf
+  sensor_msgs
   roscpp
   rospy
   std_msgs
@@ -54,7 +63,9 @@ add_message_files(
    FILES
    PoseFlame.msg
    KeyPoint.msg
+   KeyPoint_3d.msg
    KeyPoints.msg
+   KeyPoints_3d.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -209,3 +220,6 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(human_pose_tf_broadcaster src/human_pose_tf_broadcaster.cpp)
+target_link_libraries(human_pose_tf_broadcaster ${catkin_LIBRARIES})
