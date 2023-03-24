@@ -222,4 +222,5 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_executable(human_pose_tf_broadcaster src/human_pose_tf_broadcaster.cpp)
+add_dependencies(human_pose_tf_broadcaster ${PROJECT_NAME}_generate_messages)
 target_link_libraries(human_pose_tf_broadcaster ${catkin_LIBRARIES})
