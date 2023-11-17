@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from modules.conv import conv, conv_dw, conv_dw_no_bn
+from human_pose_estimator.modules.conv import conv, conv_dw, conv_dw_no_bn
 
 
 class Cpm(nn.Module):

@@ -10,10 +10,10 @@ from torchvision import transforms
 
 from datasets.coco import CocoTrainDataset
 from datasets.transformations import ConvertKeypoints, Scale, Rotate, CropPad, Flip
-from modules.get_parameters import get_parameters_conv, get_parameters_bn, get_parameters_conv_depthwise
-from models.with_mobilenet import PoseEstimationWithMobileNet
-from modules.loss import l2_loss
-from modules.load_state import load_state, load_from_mobilenet
+from human_pose_estimator.modules.get_parameters import get_parameters_conv, get_parameters_bn, get_parameters_conv_depthwise
+from human_pose_estimator.models.with_mobilenet import PoseEstimationWithMobileNet
+from human_pose_estimator.modules.loss import l2_loss
+from human_pose_estimator.modules.load_state import load_state, load_from_mobilenet
 from val import evaluate
 
 cv2.setNumThreads(0)
