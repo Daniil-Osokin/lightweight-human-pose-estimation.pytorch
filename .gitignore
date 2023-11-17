@@ -1,3 +1,13 @@
 *.pyc
 __pycache__
 .idea/
+dist/
+human-pose-estimation.bin
+human-pose-estimation.onnx
+human-pose-estimation.xml
+checkpoint_iter_370000.pth
+human_pose_estimator.egg-info
+build
+playground.py
+task_build
+task_upload

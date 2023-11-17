@@ -1,5 +1,5 @@
 # Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose
-
+# [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97-Try%20in%20Huggingface-yellow)](https://huggingface.co/spaces/leonelhs/poser-torch) [![PyPI version](https://badge.fury.io/py/human-pose-estimator.svg)](https://badge.fury.io/py/human-pose-estimator)  
 This repository contains training code for the paper [Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose](https://arxiv.org/pdf/1811.12004.pdf). This work heavily optimizes the [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) approach to reach real-time inference on CPU with negliable accuracy drop. It detects a skeleton (which consists of keypoints and connections between them) to identify human poses for every person inside the image. The pose may contain up to 18 keypoints: ears, eyes, nose, neck, shoulders, elbows, wrists, hips, knees, and ankles. On COCO 2017 Keypoint Detection validation set this code achives 40% AP for the single scale inference (no flip or any post-processing done). The result can be reproduced using this repository. *This repo significantly overlaps with https://github.com/opencv/openvino_training_extensions, however contains just the necessary code for human pose estimation.*
 
 <p align="center">
@@ -17,8 +17,9 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 * [Training](#training)
 * [Validation](#validation)
 * [Pre-trained model](#pre-trained-model)
-* [C++ demo](#cpp-demo)
+* [C++ demo](#c-demo-a-namecpp-demo)
 * [Python demo](#python-demo)
+* [Python API](#python-api-usage-a-nameapi-usage)
 * [Citation](#citation)
 
 ### Other Implementations
@@ -28,9 +29,9 @@ This repository contains training code for the paper [Real-time 2D Multi-Person 
 
 ## Requirements
 
-* Ubuntu 16.04
-* Python 3.6
-* PyTorch 0.4.1 (should also work with 1.0, but not tested)
+* Ubuntu >= 16.04 <= 23.04
+* Python >= 3.6 <= 3.11.6
+* PyTorch >= 0.4.1 <= 2.1.0
 
 ## Prerequisites
 
@@ -107,7 +108,33 @@ To run the demo download Intel&reg; OpenVINO&trade; Toolkit [https://software.in
 ## Python Demo <a name="python-demo"/>
 
 We provide python demo just for the quick results preview. Please, consider c++ demo for the best performance. To run the python demo from a webcam:
-* `python demo.py --checkpoint-path <path_to>/checkpoint_iter_370000.pth --video 0`
+
+
+```console
+foo@bar:~$ pip install human-pose-estimator
+
+foo@bar:~$ poseestimator --cpu --video /dev/video0
+foo@bar:~$ poseestimator --cpu --images /home/poses
+foo@bar:~$ poseestimator --cpu --images /home/poses/pose01.jpg
+```
+## Python API usage <a name="api-usage"/>
+```python
+import cv2
+from human_pose_estimator import PoseEstimator
+
+img = cv2.imread("/home/leonel/poses/pose02.jpg")
+
+pose_estimator = PoseEstimator("cpu")
+
+poses, _, _ = pose_estimator.get_poses(img, height_size=256)
+
+for pose in poses:
+    pose.draw(img)
+
+cv2.imshow('Human Pose Estimation', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
 
 ## Citation:
 
