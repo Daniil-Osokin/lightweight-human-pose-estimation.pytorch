@@ -20,10 +20,11 @@ if __name__ == '__main__':
     parser.add_argument('--checkpoint-path', type=str, required=True, help='path to the checkpoint')
     parser.add_argument('--output-name', type=str, default='human-pose-estimation.onnx',
                         help='name of output model in ONNX format')
+    parser.add_argument('--cpu', action='store_true', help='run network inference on cpu')
     args = parser.parse_args()
 
     net = PoseEstimationWithMobileNet()
-    checkpoint = torch.load(args.checkpoint_path)
+    checkpoint = torch.load(args.checkpoint_path, map_location='cpu' if args.cpu else None)
     load_state(net, checkpoint)
 
     convert_to_onnx(net, args.output_name)
