@@ -102,7 +102,7 @@ Pre-trained on COCO model is available at: https://download.01.org/opencv/openvi
 
 ## C++ Demo <a name="cpp-demo"/>
 
-To run the demo download Intel&reg; OpenVINO&trade; Toolkit [https://software.intel.com/en-us/openvino-toolkit/choose-download](https://software.intel.com/en-us/openvino-toolkit/choose-download), install it and [build the samples](https://software.intel.com/en-us/articles/OpenVINO-InferEngine) (*Inferring Your Model with the Inference Engine Samples* part). Then run `<SAMPLES_BIN_FOLDER>/human_pose_estimation_demo -m <path_to>/human-pose-estimation.xml -i <path_to_video_file>` for the inference on `CPU`.
+C++ demo can be found in the Intel&reg; OpenVINO&trade; toolkit, the corresponding model is `human-pose-estimation-0001`. Please follow the [official instruction](https://docs.openvino.ai/2024/omz_demos_human_pose_estimation_demo_cpp.html) to run it.
 
 ## Python Demo <a name="python-demo"/>
 
